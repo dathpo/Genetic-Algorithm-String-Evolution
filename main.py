@@ -14,7 +14,7 @@ def main():
     for str in population:
         value = fitness(str, targetString())
         if value < 9:
-            print("     {}              {}".format(value, repr(str)[1:-1]))
+            print("       {}            {}".format(value, repr(str)[1:-1]))
     # print(crossover(0))
     print("\nThe process took {} seconds".format(timeit.default_timer() - start_time))
 
