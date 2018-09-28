@@ -1,5 +1,5 @@
-import random, string, timeit, operator
-# from bitarray import bitarray
+import random, string, timeit
+from operator import itemgetter
 
 
 def target_string():
@@ -16,23 +16,36 @@ def available_chars():
 
 
 def tournament_size():
-    return 2
+    return int(0.2 * population_size())
 
 
 def tournament_rounds():
-    return 5
+    return population_size()
+
+
+def probability():
+    return 0.75
+
+
+def crossover_rate():
+    return 0.7
+
+
+def mutation_rate():
+    return 0.05
 
 
 def main():
     start_time = timeit.default_timer()
     population = generate_population(population_size())
     print("Hamming Distance     Chromosome")
-    for str in population:
+    """for str in population:
         value = fitness(str, target_string())
         if value < 9:
-            print("       {}            {}".format(value, str))
-    print(selection(population))
-    # print(crossover(0))
+            print("       {}            {}".format(value, str))"""
+    winners = selection(population)
+    winners_strings = [str[0] for str in winners]
+    crossover(winners_strings[0], 'test')
     print("\nThe process took {} seconds".format(timeit.default_timer() - start_time))
 
 
@@ -65,27 +78,51 @@ def selection(population):
     return tournament_selection(population)
 
 
-def tournament_selection(population):
-    for rounds in range(0, tournament_rounds()):
-        candidates = []
-        for candidate in range(0, tournament_size()):
-            random_index = random.randrange(len(population) - 1)
-            candidate = population[random_index]
-            cand_fitness = fitness(candidate, target_string())
-            candidates.append(tuple(candidate, cand_fitness))
-            print(candidate, random_index)
-        print(candidates)
-        winner = max(candidates, key=itemgetter(1))
-        print(winner)
-
-
 def decision(probability):
-    return random.random() < probability
+    int = random.random()
+    return int < probability
 
 
-# def crossover(chromosome):
-#     bit_array = bitarray(2**2)
-#     return bit_array
+def tournament_selection(population):
+    winners = []
+    for round in range(0, tournament_rounds()):
+        participants = []
+        for participant_str in range(0, tournament_size()):
+            random_index = random.randint(0, len(population) - 1)
+            participant_str = population[random_index]
+            participant_fitness = fitness(participant_str, target_string())
+            participant = participant_str, participant_fitness
+            participants.append(participant)
+        if decision(probability()):
+            winner = min(participants, key=itemgetter(1))
+            winners.append(winner)
+        elif decision(0.75):
+            temp_participant = min(participants, key=itemgetter(1))
+            participants.remove(temp_participant)
+            winner = min(participants, key=itemgetter(1))
+            winners.append(winner)
+            participants.append(temp_participant)
+        else:
+            first_temp_participant = min(participants, key=itemgetter(1))
+            participants.remove(first_temp_participant)
+            second_temp_participant = min(participants, key=itemgetter(1))
+            participants.remove(second_temp_participant)
+            winner = min(participants, key=itemgetter(1))
+            winners.append(winner)
+            participants.append(first_temp_participant)
+            participants.append(second_temp_participant)
+    return winners
+
+
+def crossover(first_chromosome, second_chromosome):
+    print(first_chromosome)
+    for char in first_chromosome:
+        print("char: ", char, ", number: ", ord(char), ", bin: ", bin(ord(char)))
+        bin(ord(char))
+        print(chr(127), "  ", repr(chr(127)))
+        print(len(available_chars()))
+    #print(result)
+    return 0
 
 
 if __name__ == "__main__":
