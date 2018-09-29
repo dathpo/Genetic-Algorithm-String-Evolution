@@ -63,7 +63,7 @@ def main():
             if counter == 1:
                 fittest_chromosome = chromosome, fit_value
             print("       {}            {}            {}".format(str(fit_value).rjust(2), chromosome.rjust(2), generation_number).rjust(2))
-            if fit_value < fittest_chromosome[1]:
+            if fit_value <= fittest_chromosome[1]:
                 fittest_chromosome = chromosome, fit_value
                 if fit_value == 0:
                     break
