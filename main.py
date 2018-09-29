@@ -66,7 +66,7 @@ def main():
                 if fit_value == 0:
                     break
         print("\nFittest Value:", fittest_chromosome[1], "   Chromosome:", fittest_chromosome[0], "\n")
-    print("The task took {} seconds".format(timeit.default_timer() - start_time))
+    print("The task took {0:.2f} seconds".format(timeit.default_timer() - start_time))
 
 
 def generate_population(size):
