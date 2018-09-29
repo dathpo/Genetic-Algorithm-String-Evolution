@@ -16,7 +16,7 @@ def available_chars():
 
 
 def tournament_size():
-    return int(0.10 * population_size())
+    return int(0.05 * population_size())
 
 
 def tournament_rounds():
@@ -24,7 +24,7 @@ def tournament_rounds():
 
 
 def strongest_winner_prob():
-    return 0.5
+    return 0.65
 
 
 def crossover_point():
@@ -32,7 +32,7 @@ def crossover_point():
 
 
 def crossover_rate():
-    return 0.7
+    return 0.8
 
 
 def mutation_rate():
@@ -49,7 +49,7 @@ def main():
     if tournament_size() % 2 != 0:
         raise ValueError('Tournament Size must be an even number!')
     generation_number = 0
-    print("Hamming Distance     Chromosome      Generation")
+    print("Hamming Distance      Chromosome          Generation")
     while target_string() not in population:
         generation_number += 1
         winners = selection(population)
@@ -60,11 +60,13 @@ def main():
             fit_value = fitness(chromosome, target_string())
             if generation_number == 1:
                 fittest_chromosome = chromosome, fit_value
+            print("       {}            {}            {}".format(str(fit_value).rjust(2), chromosome.rjust(2), generation_number).rjust(2))
             if fit_value < fittest_chromosome[1]:
                 fittest_chromosome = chromosome, fit_value
-            print("       {}            {}            {}".format(fit_value, chromosome, generation_number))
-        print("\nFittest Value:", fittest_chromosome[1], "Chromosome:", fittest_chromosome[0], "\n")
-    print("\nThe process took {} seconds".format(timeit.default_timer() - start_time))
+                if fit_value == 0:
+                    break
+        print("\nFittest Value:", fittest_chromosome[1], "      Chromosome:", fittest_chromosome[0], "\n")
+    print("The process took {} seconds".format(timeit.default_timer() - start_time))
 
 
 def generate_population(size):
