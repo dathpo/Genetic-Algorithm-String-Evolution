@@ -11,7 +11,7 @@ def population_size():
 
 
 def available_chars():
-    characters = string.ascii_letters + string.digits + ' ' + string.punctuation
+    characters = string.ascii_letters + string.digits + ' ' + '\x7f' + string.punctuation
     return characters
 
 
@@ -23,8 +23,12 @@ def tournament_rounds():
     return population_size()
 
 
-def probability():
+def strongest_winner_prob():
     return 0.75
+
+
+def crossover_point():
+    return 0.5
 
 
 def crossover_rate():
@@ -38,14 +42,15 @@ def mutation_rate():
 def main():
     start_time = timeit.default_timer()
     population = generate_population(population_size())
+    if tournament_size() % 2 != 0:
+        raise ValueError('Tournament Size must be an even number!')
     print("Hamming Distance     Chromosome")
     """for str in population:
         value = fitness(str, target_string())
         if value < 9:
             print("       {}            {}".format(value, str))"""
     winners = selection(population)
-    winners_strings = [str[0] for str in winners]
-    crossover(winners_strings[0], 'test')
+    check_for_crossover(winners)
     print("\nThe process took {} seconds".format(timeit.default_timer() - start_time))
 
 
@@ -79,13 +84,13 @@ def selection(population):
 
 
 def decision(probability):
-    int = random.random()
-    return int < probability
+    rand_int = random.random()
+    return rand_int < probability
 
 
 def tournament_selection(population):
     winners = []
-    for round in range(0, tournament_rounds()):
+    for t_round in range(0, tournament_rounds()):
         participants = []
         for participant_str in range(0, tournament_size()):
             random_index = random.randint(0, len(population) - 1)
@@ -93,10 +98,10 @@ def tournament_selection(population):
             participant_fitness = fitness(participant_str, target_string())
             participant = participant_str, participant_fitness
             participants.append(participant)
-        if decision(probability()):
+        if decision(strongest_winner_prob()):
             winner = min(participants, key=itemgetter(1))
             winners.append(winner)
-        elif decision(0.75):
+        elif decision(strongest_winner_prob()):
             temp_participant = min(participants, key=itemgetter(1))
             participants.remove(temp_participant)
             winner = min(participants, key=itemgetter(1))
@@ -111,18 +116,55 @@ def tournament_selection(population):
             winners.append(winner)
             participants.append(first_temp_participant)
             participants.append(second_temp_participant)
-    return winners
+    winners_strings = [str[0] for str in winners]
+    paired_winners = list(zip(winners_strings[0::2], winners_strings[1::2]))
+    return paired_winners
 
 
-def crossover(first_chromosome, second_chromosome):
-    print(first_chromosome)
-    for char in first_chromosome:
-        print("char: ", char, ", number: ", ord(char), ", bin: ", bin(ord(char)))
-        bin(ord(char))
-        print(chr(127), "  ", repr(chr(127)))
-        print(len(available_chars()))
-    #print(result)
+def check_for_crossover(parents):
+    pre_mutation_next_gen = []
+    for first_parent, second_parent in parents:
+        if decision(crossover_rate()):
+            binary_one_point_crossover(first_parent, second_parent)
+        else:
+            pre_mutation_next_gen.append(first_parent)
+            pre_mutation_next_gen.append(second_parent)
+            print(len(pre_mutation_next_gen))
+
+
+def binary_one_point_crossover(first_parent, second_parent):
+    print("First: ", first_parent, "Second: ", second_parent)
+    first_parent_bit_array = []
+    second_parent_bit_array = []
+    i = 0
+    for char_a, char_b in zip(first_parent, second_parent):
+        print("char a: ", char_a, ", number: ", ord(char_a), ", bin: ", bin(ord(char_a)))
+        print("char b: ", char_b, ", number: ", ord(char_b), ", bin: ", bin(ord(char_b)))
+        i += 1
+        point = int(round(crossover_point() * len(target_string())))
+        binary_char_a = bin(ord(char_a))
+        binary_char_b = bin(ord(char_b))
+        if i <= point:
+            first_parent_bit_array.append(binary_char_a)
+            second_parent_bit_array.append(binary_char_b)
+        else:
+            first_parent_bit_array.append(binary_char_b)
+            second_parent_bit_array.append(binary_char_a)
+        #print(i)
+    print(first_parent_bit_array)
+    print(bit_array_to_string(first_parent_bit_array))
+    print(second_parent_bit_array)
+    print(bit_array_to_string(second_parent_bit_array))
     return 0
+
+
+def bit_array_to_string(array):
+    char_array = []
+    for bit in array:
+        char = chr(int(bit, 2))
+        char_array.append(char)
+    str = ''.join(char_array)
+    print(str)
 
 
 if __name__ == "__main__":
