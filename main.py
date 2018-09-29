@@ -16,7 +16,7 @@ def available_chars():
 
 
 def tournament_size():
-    return int(0.2 * population_size())
+    return int(0.10 * population_size())
 
 
 def tournament_rounds():
@@ -24,11 +24,11 @@ def tournament_rounds():
 
 
 def strongest_winner_prob():
-    return 0.75
+    return 0.5
 
 
 def crossover_point():
-    return 0.5
+    return random.random()
 
 
 def crossover_rate():
@@ -36,7 +36,11 @@ def crossover_rate():
 
 
 def mutation_rate():
-    return 0.05
+    return 0.055
+
+
+def set_mutation_rate(rate):
+    return rate
 
 
 def main():
@@ -44,13 +48,22 @@ def main():
     population = generate_population(population_size())
     if tournament_size() % 2 != 0:
         raise ValueError('Tournament Size must be an even number!')
-    print("Hamming Distance     Chromosome")
-    """for str in population:
-        value = fitness(str, target_string())
-        if value < 9:
-            print("       {}            {}".format(value, str))"""
-    winners = selection(population)
-    check_for_crossover(winners)
+    generation_number = 0
+    print("Hamming Distance     Chromosome      Generation")
+    while target_string() not in population:
+        generation_number += 1
+        winners = selection(population)
+        pre_mutation_generation = check_for_crossover(winners)
+        new_generation = mutate(pre_mutation_generation)
+        population = new_generation
+        for chromosome in population:
+            fit_value = fitness(chromosome, target_string())
+            if generation_number == 1:
+                fittest_chromosome = chromosome, fit_value
+            if fit_value < fittest_chromosome[1]:
+                fittest_chromosome = chromosome, fit_value
+            print("       {}            {}            {}".format(fit_value, chromosome, generation_number))
+        print("\nFittest Value:", fittest_chromosome[1], "Chromosome:", fittest_chromosome[0], "\n")
     print("\nThe process took {} seconds".format(timeit.default_timer() - start_time))
 
 
@@ -60,8 +73,6 @@ def generate_population(size):
         chromosome = []
         str_length = len(target_string())
         for char in range(0,str_length):
-            if str_length != 12:
-                print("Length: {}", str_length)
             char = random.choice(available_chars())
             chromosome.append(char)
         chromo_string = ''.join(chromosome)
@@ -122,40 +133,65 @@ def tournament_selection(population):
 
 
 def check_for_crossover(parents):
-    pre_mutation_next_gen = []
+    new_generation = []
     for first_parent, second_parent in parents:
         if decision(crossover_rate()):
-            binary_one_point_crossover(first_parent, second_parent)
+            children_duo = binary_one_point_crossover(first_parent, second_parent)
+            #print("Children duo:", children_duo)
+            for child in children_duo:
+                new_generation.append(child)
         else:
-            pre_mutation_next_gen.append(first_parent)
-            pre_mutation_next_gen.append(second_parent)
-            print(len(pre_mutation_next_gen))
+            new_generation.append(first_parent)
+            new_generation.append(second_parent)
+    return new_generation
 
 
 def binary_one_point_crossover(first_parent, second_parent):
-    print("First: ", first_parent, "Second: ", second_parent)
-    first_parent_bit_array = []
-    second_parent_bit_array = []
+    #print("First parent:", first_parent, "Second parent:", second_parent)
+    first_child_char_array = []
+    second_child_char_array = []
     i = 0
     for char_a, char_b in zip(first_parent, second_parent):
-        print("char a: ", char_a, ", number: ", ord(char_a), ", bin: ", bin(ord(char_a)))
-        print("char b: ", char_b, ", number: ", ord(char_b), ", bin: ", bin(ord(char_b)))
+        #print("char a:", char_a, ", number:", ord(char_a), ", bin:", bin(ord(char_a)))
+        #print("char b:", char_b, ", number:", ord(char_b), ", bin:", bin(ord(char_b)))
         i += 1
         point = int(round(crossover_point() * len(target_string())))
-        binary_char_a = bin(ord(char_a))
-        binary_char_b = bin(ord(char_b))
         if i <= point:
-            first_parent_bit_array.append(binary_char_a)
-            second_parent_bit_array.append(binary_char_b)
+            first_child_char_array.append(char_a)
+            second_child_char_array.append(char_b)
         else:
-            first_parent_bit_array.append(binary_char_b)
-            second_parent_bit_array.append(binary_char_a)
-        #print(i)
-    print(first_parent_bit_array)
-    print(bit_array_to_string(first_parent_bit_array))
-    print(second_parent_bit_array)
-    print(bit_array_to_string(second_parent_bit_array))
-    return 0
+            first_child_char_array.append(char_b)
+            second_child_char_array.append(char_a)
+    first_child = ''.join(first_child_char_array)
+    second_child = ''.join(second_child_char_array)
+    return first_child, second_child
+
+
+def mutate(generation):
+    new_generation = []
+    for chromosome in generation:
+        #print("Chromosome:", chromosome, "\n")
+        chromosome_bit_array = []
+        for char in chromosome:
+            binary_char = bin(ord(char))
+            #print("Char:", char, " Number:", ord(char), " Binary Char:", binary_char)
+            new_binary_char_array = ['0', 'b', '1']
+            for bit in binary_char[3:]:
+                if decision(mutation_rate()):
+                    flipped_bit = int(bit) ^ 1
+                    #print("Bit:", str(bit), " Flipped bit:", str(flipped_bit))
+                    new_binary_char_array.append(str(flipped_bit))
+                else:
+                    #print("Bit:", str(bit))
+                    new_binary_char_array.append(str(bit))
+            new_binary_char = ''.join(new_binary_char_array)
+            #print("New Char:", chr(int(new_binary_char, 2)), " Number:", int(new_binary_char, 2), " Binary Char:", new_binary_char, "\n")
+            chromosome_bit_array.append(new_binary_char)
+        #print("New Chromosome Bit Array:", chromosome_bit_array)
+        new_chromosome = bit_array_to_string(chromosome_bit_array)
+        #print("Previous Chromosome:", chromosome, " New Chromosome:", new_chromosome, "\n")
+        new_generation.append(new_chromosome)
+    return new_generation
 
 
 def bit_array_to_string(array):
@@ -164,7 +200,7 @@ def bit_array_to_string(array):
         char = chr(int(bit, 2))
         char_array.append(char)
     str = ''.join(char_array)
-    print(str)
+    return str
 
 
 if __name__ == "__main__":
