@@ -28,7 +28,8 @@ def strongest_winner_prob():
 
 
 def crossover_point():
-    return random.random()
+    value = random.random()
+    return value
 
 
 def crossover_rate():
@@ -39,16 +40,13 @@ def mutation_rate():
     return 0.05
 
 
-def set_mutation_rate(rate):
-    return rate
-
-
 def main():
     start_time = timeit.default_timer()
     population = generate_population(population_size())
     if tournament_size() % 2 != 0:
         raise ValueError('Tournament Size must be an even number!')
     generation_number = 0
+    fittest_chromosome = 0
     print("Hamming Distance      Chromosome          Generation")
     while target_string() not in population:
         generation_number += 1
@@ -68,7 +66,7 @@ def main():
                 if fit_value == 0:
                     break
         print("\nFittest Value:", fittest_chromosome[1], "   Chromosome:", fittest_chromosome[0], "\n")
-    print("The process took {} seconds".format(timeit.default_timer() - start_time))
+    print("The task took {} seconds".format(timeit.default_timer() - start_time))
 
 
 def generate_population(size):
@@ -141,7 +139,6 @@ def check_for_crossover(parents):
     for first_parent, second_parent in parents:
         if decision(crossover_rate()):
             children_duo = binary_one_point_crossover(first_parent, second_parent)
-            #print("Children duo:", children_duo)
             for child in children_duo:
                 new_generation.append(child)
         else:
@@ -151,13 +148,10 @@ def check_for_crossover(parents):
 
 
 def binary_one_point_crossover(first_parent, second_parent):
-    #print("First parent:", first_parent, "Second parent:", second_parent)
     first_child_char_array = []
     second_child_char_array = []
     i = 0
     for char_a, char_b in zip(first_parent, second_parent):
-        #print("char a:", char_a, ", number:", ord(char_a), ", bin:", bin(ord(char_a)))
-        #print("char b:", char_b, ", number:", ord(char_b), ", bin:", bin(ord(char_b)))
         i += 1
         point = int(round(crossover_point() * len(target_string())))
         if i <= point:
