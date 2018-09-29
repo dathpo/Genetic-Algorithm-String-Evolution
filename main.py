@@ -168,26 +168,24 @@ def binary_one_point_crossover(first_parent, second_parent):
 def mutate(generation):
     new_generation = []
     for chromosome in generation:
-        #print("Chromosome:", chromosome, "\n")
         chromosome_bit_array = []
         for char in chromosome:
             binary_char = bin(ord(char))
-            #print("Char:", char, " Number:", ord(char), " Binary Char:", binary_char)
+            #print("Char:", char, "   Number:", ord(char), "   Binary Char:", binary_char)
             new_binary_char_array = ['0', 'b', '1']
             for bit in binary_char[3:]:
                 if decision(mutation_rate()):
                     flipped_bit = int(bit) ^ 1
-                    #print("Bit:", str(bit), " Flipped bit:", str(flipped_bit))
+                    #print("Bit:", str(bit), "   Flipped bit:", str(flipped_bit))
                     new_binary_char_array.append(str(flipped_bit))
                 else:
                     #print("Bit:", str(bit))
                     new_binary_char_array.append(str(bit))
             new_binary_char = ''.join(new_binary_char_array)
-            #print("New Char:", chr(int(new_binary_char, 2)), " Number:", int(new_binary_char, 2), " Binary Char:", new_binary_char, "\n")
+            #print("New Char:", chr(int(new_binary_char, 2)), "   Number:", int(new_binary_char, 2), "   Binary Char:", new_binary_char, "\n")
             chromosome_bit_array.append(new_binary_char)
-        #print("New Chromosome Bit Array:", chromosome_bit_array)
         new_chromosome = bit_array_to_string(chromosome_bit_array)
-        #print("Previous Chromosome:", chromosome, " New Chromosome:", new_chromosome, "\n")
+        #print("Previous Chromosome:", chromosome, "   New Chromosome:", new_chromosome, "\n")
         new_generation.append(new_chromosome)
     return new_generation
 
