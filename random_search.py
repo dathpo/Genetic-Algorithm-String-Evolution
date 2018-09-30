@@ -1,6 +1,6 @@
 __author__ = 'David T. Pocock'
 
-import timeit, string
+import timeit
 from operator import itemgetter
 from genetic_algorithm import GeneticAlgorithm
 
@@ -15,7 +15,6 @@ class RandomSearch(GeneticAlgorithm):
         solutions = self.generate_population(self.solutions_size)
         best_solution = self.evaluate(solutions)
         round_number = 0
-        print("Fitness      Solution          Generation")
         while self.target_string not in solutions:
             round_number += 1
             if best_solution[1] == 0:
@@ -26,7 +25,7 @@ class RandomSearch(GeneticAlgorithm):
                 solutions = new_solutions
                 best_solution = new_best_solution
                 print("\nFittest Value:", best_solution[1], "   Chromosome:", best_solution[0])
-        print("The task took {0:.2f} seconds".format(timeit.default_timer() - start_time))
+        print("\nThe task took {0:.2f} seconds".format(timeit.default_timer() - start_time))
 
     def evaluate(self, solutions):
         solutions_evaluated = []
@@ -35,6 +34,4 @@ class RandomSearch(GeneticAlgorithm):
             solution = solution_str, solution_fitness
             solutions_evaluated.append(solution)
         best_solution = min(solutions_evaluated, key=itemgetter(1))
-        """print("       {}            {}            "
-              .format(str(solution_fitness).rjust(2), solution))"""
         return best_solution

@@ -6,24 +6,29 @@ from operator import itemgetter
 
 
 class GeneticAlgorithm:
-    def __init__(self, target_string, population_size, crossover_rate, mutation_rate):
+    def __init__(self, target_string, population_size, crossover_rate, mutation_rate,
+                 is_k_point_crossover, tournament_size_percent, strongest_winner_probability):
         self.target_string = target_string
         self.population_size = population_size
         self.crossover_rate = crossover_rate
         self.mutation_rate = mutation_rate
+        self.is_k_point_crossover = is_k_point_crossover
+        self.tournament_size_percent = tournament_size_percent
+        self.strongest_winner_probability = strongest_winner_probability
 
     def available_chars(self):
         characters = string.ascii_letters + string.digits + ' ' + '\x7f' + string.punctuation
         return characters
 
     def tournament_size(self):
-        return int(0.05 * self.population_size)
+        size = int(self.tournament_size_percent * self.population_size)
+        return size
 
     def tournament_rounds(self):
         return self.population_size
 
     def strongest_winner_prob(self):
-        return 0.65
+        return self.strongest_winner_probability
 
     def crossover_point(self):
         value = random.random()
@@ -36,7 +41,7 @@ class GeneticAlgorithm:
             raise ValueError('Tournament Size must be an even number!')
         generation_number = 0
         fittest_chromosome = 0
-        print("Hamming Distance      Chromosome          Generation")
+        # print("Hamming Distance      Chromosome          Generation")
         while self.target_string not in population:
             generation_number += 1
             winners = self.selection(population)
@@ -49,14 +54,15 @@ class GeneticAlgorithm:
                 fitness_value = self.fitness(chromosome, self.target_string)
                 if counter == 1:
                     fittest_chromosome = chromosome, fitness_value
-                print("       {}            {}            {}"
-                      .format(str(fitness_value).rjust(2), chromosome.rjust(2), str(generation_number).rjust(2)))
+                """print("       {}            {}            {}"
+                      .format(str(fitness_value).rjust(2), chromosome.rjust(2), str(generation_number).rjust(2)))"""
                 if fitness_value <= fittest_chromosome[1]:
                     fittest_chromosome = chromosome, fitness_value
                     if fitness_value == 0:
                         break
-            print("\nFittest Value:", fittest_chromosome[1], "   Chromosome:", fittest_chromosome[0], "\n")
-        print("The task took {0:.2f} seconds".format(timeit.default_timer() - start_time))
+            print("\nFittest Value:", fittest_chromosome[1], "    Chromosome:", fittest_chromosome[0],
+                  "    Generation:", generation_number)
+        print("\nThe task took {0:.2f} seconds".format(timeit.default_timer() - start_time))
 
     def generate_population(self, size):
         population = []
@@ -124,7 +130,7 @@ class GeneticAlgorithm:
         new_generation = []
         for first_parent, second_parent in parents:
             if self.decision(self.crossover_rate):
-                children_duo = self.binary_one_point_crossover(first_parent, second_parent)
+                children_duo = self.crossover(first_parent, second_parent, self.is_k_point_crossover)
                 for child in children_duo:
                     new_generation.append(child)
             else:
@@ -132,13 +138,15 @@ class GeneticAlgorithm:
                 new_generation.append(second_parent)
         return new_generation
 
-    def binary_one_point_crossover(self, first_parent, second_parent):
+    def crossover(self, first_parent, second_parent, is_k_point_crossover):
         first_child_char_array = []
         second_child_char_array = []
         i = 0
+        point = int(self.crossover_point() * (len(self.target_string) - 1)) + 1
         for char_a, char_b in zip(first_parent, second_parent):
             i += 1
-            point = int(round(self.crossover_point() * len(self.target_string)))
+            if is_k_point_crossover:
+                point = int(self.crossover_point() * (len(self.target_string) - 1)) + 1
             if i <= point:
                 first_child_char_array.append(char_a)
                 second_child_char_array.append(char_b)
