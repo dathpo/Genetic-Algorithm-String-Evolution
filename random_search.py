@@ -5,7 +5,7 @@ from operator import itemgetter
 from genetic_algorithm import GeneticAlgorithm
 
 
-class HillClimbing(GeneticAlgorithm):
+class RandomSearch(GeneticAlgorithm):
     def __init__(self, target_string, solutions_size):
         self.target_string = target_string
         self.solutions_size = solutions_size

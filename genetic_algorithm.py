@@ -46,13 +46,14 @@ class GeneticAlgorithm:
             counter = 0
             for chromosome in population:
                 counter += 1
-                fit_value = self.fitness(chromosome, self.target_string)
+                fitness_value = self.fitness(chromosome, self.target_string)
                 if counter == 1:
-                    fittest_chromosome = chromosome, fit_value
-                print("       {}            {}            {}".format(str(fit_value).rjust(2), chromosome.rjust(2), generation_number).rjust(2))
-                if fit_value <= fittest_chromosome[1]:
-                    fittest_chromosome = chromosome, fit_value
-                    if fit_value == 0:
+                    fittest_chromosome = chromosome, fitness_value
+                print("       {}            {}            {}"
+                      .format(str(fitness_value).rjust(2), chromosome.rjust(2), str(generation_number).rjust(2)))
+                if fitness_value <= fittest_chromosome[1]:
+                    fittest_chromosome = chromosome, fitness_value
+                    if fitness_value == 0:
                         break
             print("\nFittest Value:", fittest_chromosome[1], "   Chromosome:", fittest_chromosome[0], "\n")
         print("The task took {0:.2f} seconds".format(timeit.default_timer() - start_time))
@@ -77,6 +78,8 @@ class GeneticAlgorithm:
                 if a != b:
                     hamming_distance += 1
             return hamming_distance
+        else:
+            raise ValueError('Source and target string must be of the same length!')
 
     def selection(self, population):
         return self.tournament_selection(population)
@@ -147,6 +150,7 @@ class GeneticAlgorithm:
         return first_child, second_child
 
     def mutate(self, generation):
+        """I left the print statements in to allow seeing how the bit-flipping works in the mutation process"""
         new_generation = []
         for chromosome in generation:
             chromosome_bit_array = []
@@ -163,7 +167,8 @@ class GeneticAlgorithm:
                         #print("Bit:", str(bit))
                         new_binary_char_array.append(str(bit))
                 new_binary_char = ''.join(new_binary_char_array)
-                #print("New Char:", chr(int(new_binary_char, 2)), "   Number:", int(new_binary_char, 2), "   Binary Char:", new_binary_char, "\n")
+                #print("New Char:", chr(int(new_binary_char, 2)), "   Number:",
+                #  int(new_binary_char, 2), "   Binary Char:", new_binary_char, "\n")
                 chromosome_bit_array.append(new_binary_char)
             new_chromosome = self.bit_array_to_string(chromosome_bit_array)
             #print("Previous Chromosome:", chromosome, "   New Chromosome:", new_chromosome, "\n")

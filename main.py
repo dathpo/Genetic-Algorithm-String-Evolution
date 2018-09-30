@@ -6,10 +6,10 @@ from genetic_algorithm import GeneticAlgorithm
 
 
 def main():
-    ga = GeneticAlgorithm("Hello World!", 1000, 0.8, 0.05)
+    ga = GeneticAlgorithm("Hel", 1000, 0.8, 0.05)
     ga.run()
-    hc = HillClimbing("Hello World!")
-    hc.get_target_string()
+    hc = HillClimbing("Hel", 1000)
+    hc.run()
 
 
 if __name__ == "__main__":
