@@ -6,6 +6,10 @@ from operator import itemgetter
 
 
 class GeneticAlgorithm:
+    show_each_chromosome = None
+    show_crossover_internals = None
+    show_mutation_internals = None
+
     def __init__(self, target_string, population_size, crossover_rate, mutation_rate,
                  is_k_point_crossover, tournament_size_percent, strongest_winner_probability):
         self.target_string = target_string
@@ -41,7 +45,7 @@ class GeneticAlgorithm:
             raise ValueError('Tournament Size must be an even number!')
         generation_number = 0
         fittest_chromosome = 0
-        # print("Hamming Distance      Chromosome          Generation")
+        if self.show_each_chromosome: print("Hamming Distance      Chromosome          Generation\n")
         while self.target_string not in population:
             generation_number += 1
             winners = self.selection(population)
@@ -54,8 +58,9 @@ class GeneticAlgorithm:
                 fitness_value = self.fitness(chromosome, self.target_string)
                 if counter == 1:
                     fittest_chromosome = chromosome, fitness_value
-                """print("       {}            {}            {}"
-                      .format(str(fitness_value).rjust(2), chromosome.rjust(2), str(generation_number).rjust(2)))"""
+                if self.show_each_chromosome:
+                    print("       {}            {}            {}"
+                      .format(str(fitness_value).rjust(2), chromosome.rjust(2), str(generation_number).rjust(2)))
                 if fitness_value <= fittest_chromosome[1]:
                     fittest_chromosome = chromosome, fitness_value
                     if fitness_value == 0:
@@ -139,14 +144,20 @@ class GeneticAlgorithm:
         return new_generation
 
     def crossover(self, first_parent, second_parent, is_k_point_crossover):
+        if is_k_point_crossover: crossover_method = "k-Point Crossover"
+        else: crossover_method = "One-Point Crossover"
+        if self.show_crossover_internals:
+            print("\nParent #1:", first_parent, "      Parent #2:", second_parent, "      Crossover Method:", crossover_method)
         first_child_char_array = []
         second_child_char_array = []
         i = 0
         point = int(self.crossover_point() * (len(self.target_string) - 1)) + 1
+        points = []
         for char_a, char_b in zip(first_parent, second_parent):
             i += 1
             if is_k_point_crossover:
                 point = int(self.crossover_point() * (len(self.target_string) - 1)) + 1
+                points.append(point)
             if i <= point:
                 first_child_char_array.append(char_a)
                 second_child_char_array.append(char_b)
@@ -155,31 +166,42 @@ class GeneticAlgorithm:
                 second_child_char_array.append(char_a)
         first_child = ''.join(first_child_char_array)
         second_child = ''.join(second_child_char_array)
+        if self.show_crossover_internals:
+            if is_k_point_crossover:
+                print("Child #1: ", first_child, "      Parent #2:", second_child,
+                      "      Crossover Point at multiple points")
+            else:
+                print("Child #1: ", first_child, "      Parent #2:", second_child,
+                      "      Crossover Point after character #{}".format(point))
         return first_child, second_child
 
     def mutate(self, generation):
         """I left the print statements in to allow seeing how the bit-flipping works in the mutation process"""
         new_generation = []
         for chromosome in generation:
+            if self.show_mutation_internals: print("\nChromosome being worked on:  ", chromosome, "\n")
             chromosome_bit_array = []
             for char in chromosome:
                 binary_char = bin(ord(char))
-                #print("Char:", char, "   Number:", ord(char), "   Binary Char:", binary_char)
+                if self.show_mutation_internals: print("Char:    ", char, "   ASCII #:", ord(char), "   Binary Char:", binary_char)
                 new_binary_char_array = ['0', 'b', '1']
                 for bit in binary_char[3:]:
                     if self.decision(self.mutation_rate):
                         flipped_bit = int(bit) ^ 1
-                        #print("Bit:", str(bit), "   Flipped bit:", str(flipped_bit))
+                        if self.show_mutation_internals: print("Bit:     ", str(bit), "   Flipped Bit:", str(flipped_bit))
                         new_binary_char_array.append(str(flipped_bit))
                     else:
-                        #print("Bit:", str(bit))
+                        if self.show_mutation_internals: print("Bit:     ", str(bit))
                         new_binary_char_array.append(str(bit))
                 new_binary_char = ''.join(new_binary_char_array)
-                #print("New Char:", chr(int(new_binary_char, 2)), "   Number:",
-                #  int(new_binary_char, 2), "   Binary Char:", new_binary_char, "\n")
+                if self.show_mutation_internals:
+                    print("New Char:", chr(int(new_binary_char, 2)), "   ASCII #:",
+                          int(new_binary_char, 2), "   Binary Char:", new_binary_char, "\n")
                 chromosome_bit_array.append(new_binary_char)
             new_chromosome = self.bit_array_to_string(chromosome_bit_array)
-            #print("Previous Chromosome:", chromosome, "   New Chromosome:", new_chromosome, "\n")
+            if self.show_mutation_internals:
+                print("Chromosome pre-mutation:   ", chromosome)
+                print("Chromosome post-mutation:  ", new_chromosome, "\n")
             new_generation.append(new_chromosome)
         return new_generation
 
@@ -190,3 +212,12 @@ class GeneticAlgorithm:
             char_array.append(char)
         str = ''.join(char_array)
         return str
+
+    def set_show_each_chromosome(self, boolean):
+        self.show_each_chromosome = boolean
+
+    def set_show_crossover_internals(self, boolean):
+        self.show_crossover_internals = boolean
+
+    def set_show_mutation_internals(self, boolean):
+        self.show_mutation_internals = boolean

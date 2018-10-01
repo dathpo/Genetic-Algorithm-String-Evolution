@@ -6,6 +6,8 @@ from genetic_algorithm import GeneticAlgorithm
 
 
 class HillClimbing(GeneticAlgorithm):
+    show_each_solution = None
+
     def __init__(self, target_string, solutions_size):
         self.target_string = target_string
         self.solutions_size = solutions_size
@@ -15,20 +17,39 @@ class HillClimbing(GeneticAlgorithm):
         solutions = self.generate_population(self.solutions_size)
         best_solution = self.evaluate(solutions)
         round_number = 0
-        print("     Fitness           Solution             Round")
+        if self.show_each_solution is True:
+            print("     Fitness              Solution            Round\n")
+        else:
+            print("               Fitness    Solution            Round\n")
         while self.target_string not in solutions:
             round_number += 1
             if best_solution[1] == 0:
                 break
             new_solutions = self.generate_new_solutions(best_solution[2])
             new_best_solution = self.evaluate(new_solutions)
-            print("       {}            {}            {}".
-                  format(str(new_best_solution[1]).rjust(2), new_best_solution[0].rjust(2), str(round_number).rjust(2)))
+            if self.show_each_solution:
+                print("       {}              {}            {}".
+                      format(str(new_best_solution[1]).rjust(2), new_best_solution[0].rjust(2), str(round_number).rjust(2)))
             if new_best_solution[1] < best_solution[1]:
                 solutions = new_solutions
                 best_solution = new_best_solution
-                print("\nFitter Solution:    ", best_solution[0], "\n")
+                print("\nFitter Solution ({}):  ".format(best_solution[1]), best_solution[0],
+                      "          ", str(round_number).rjust(2), "\n")
         print("The task took {0:.2f} seconds".format(timeit.default_timer() - start_time))
+
+    def fitness(self, source, target):
+        fit_chars = [None] * len(self.target_string)
+        if len(source) == len(target):
+            pairs = zip(source, target)
+            hamming_distance = 0
+            for i, (a, b) in enumerate(pairs):
+                if a != b:
+                    hamming_distance += 1
+                else:
+                    fit_chars[i] = [a]
+            return hamming_distance, fit_chars
+        else:
+            raise ValueError('Source and target string must be of the same length!')
 
     def evaluate(self, solutions):
         solutions_evaluated = []
@@ -56,16 +77,5 @@ class HillClimbing(GeneticAlgorithm):
             solutions.append(solution_string)
         return solutions
 
-    def fitness(self, source, target):
-        fit_chars = [None] * len(self.target_string)
-        if len(source) == len(target):
-            pairs = zip(source, target)
-            hamming_distance = 0
-            for i, (a, b) in enumerate(pairs):
-                if a != b:
-                    hamming_distance += 1
-                else:
-                    fit_chars[i] = [a]
-            return hamming_distance, fit_chars
-        else:
-            raise ValueError('Source and target string must be of the same length!')
+    def set_show_each_solution(self, boolean):
+        self.show_each_solution = boolean
