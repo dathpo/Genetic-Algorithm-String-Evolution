@@ -9,6 +9,9 @@ class GeneticAlgorithm:
     show_each_chromosome = None
     show_crossover_internals = None
     show_mutation_internals = None
+    silent = None
+    mean_time = None
+    mean_generations = None
 
     def __init__(self, target_string, population_size, crossover_rate, mutation_rate,
                  is_k_point_crossover, tournament_size_percent, strongest_winner_probability):
@@ -38,36 +41,45 @@ class GeneticAlgorithm:
         value = random.random()
         return value
 
-    def run(self):
-        start_time = timeit.default_timer()
-        population = self.generate_population(self.population_size)
-        if self.tournament_size() % 2 != 0:
-            raise ValueError('Tournament Size must be an even number!')
-        generation_number = 0
-        fittest_chromosome = 0
-        if self.show_each_chromosome: print("Hamming Distance      Chromosome          Generation\n")
-        while self.target_string not in population:
-            generation_number += 1
-            winners = self.selection(population)
-            pre_mutation_generation = self.check_for_crossover(winners)
-            new_generation = self.mutate(pre_mutation_generation)
-            population = new_generation
-            counter = 0
-            for chromosome in population:
-                counter += 1
-                fitness_value = self.fitness(chromosome, self.target_string)
-                if counter == 1:
-                    fittest_chromosome = chromosome, fitness_value
-                if self.show_each_chromosome:
-                    print("       {}            {}            {}"
-                      .format(str(fitness_value).rjust(2), chromosome.rjust(2), str(generation_number).rjust(2)))
-                if fitness_value <= fittest_chromosome[1]:
-                    fittest_chromosome = chromosome, fitness_value
-                    if fitness_value == 0:
-                        break
-            print("\nFittest Value:", fittest_chromosome[1], "    Chromosome:", fittest_chromosome[0],
-                  "    Generation:", generation_number)
-        print("\nThe task took {0:.2f} seconds".format(timeit.default_timer() - start_time))
+    def run(self, number_of_runs):
+        times = []
+        generations = []
+        for i in range(0, number_of_runs):
+            start_time = timeit.default_timer()
+            population = self.generate_population(self.population_size)
+            if self.tournament_size() % 2 != 0:
+                raise ValueError('Tournament Size must be an even number!')
+            generation_number = 0
+            fittest_chromosome = 0
+            if self.show_each_chromosome: print("Hamming Distance      Chromosome          Generation\n")
+            while self.target_string not in population:
+                generation_number += 1
+                winners = self.selection(population)
+                pre_mutation_generation = self.check_for_crossover(winners)
+                new_generation = self.mutate(pre_mutation_generation)
+                population = new_generation
+                counter = 0
+                for chromosome in population:
+                    counter += 1
+                    fitness_value = self.fitness(chromosome, self.target_string)
+                    if counter == 1:
+                        fittest_chromosome = chromosome, fitness_value
+                    if self.show_each_chromosome:
+                        print("       {}            {}            {}"
+                          .format(str(fitness_value).rjust(2), chromosome.rjust(2), str(generation_number).rjust(2)))
+                    if fitness_value <= fittest_chromosome[1]:
+                        fittest_chromosome = chromosome, fitness_value
+                        if fitness_value == 0:
+                            break
+                if not self.silent:
+                    print("\nFittest Value:", fittest_chromosome[1], "    Chromosome:", fittest_chromosome[0],
+                          "    Generation:", generation_number)
+            exec_time = timeit.default_timer() - start_time
+            times.append(exec_time)
+            generations.append(generation_number)
+            print("\nGenetic Algorithm complete, Execution Time: {0:.3f} seconds".format(exec_time),
+                  "          Generations:", generation_number, "\n")
+        self.set_stats(times, generations, number_of_runs)
 
     def generate_population(self, size):
         population = []
@@ -221,3 +233,15 @@ class GeneticAlgorithm:
 
     def set_show_mutation_internals(self, boolean):
         self.show_mutation_internals = boolean
+
+    def set_silent(self, boolean):
+        self.silent = boolean
+
+    def set_stats(self, times, generations, number_of_runs):
+        self.mean_time = sum(times) / number_of_runs
+        self.mean_generations = sum(generations) / number_of_runs
+
+    def get_stats(self):
+        print("\n\nGenetic Algorithm Run  Mean Execution Time: {0:.3f} seconds".format(self.mean_time),
+              "     Mean Generations:", int(self.mean_generations), "\n\n\n")
+        return self.mean_time
