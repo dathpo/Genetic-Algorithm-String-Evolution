@@ -1,4 +1,4 @@
-# Hello World Genetic Algorithm Evolution
+# Genetic Algorithm String Evolution
 
 The application has been written in Python 3.x and has been tested to work with v3.5, v3.6 and v3.7.
 Significant performance improvements (4x faster) have been found while using PyPy (v6.0 that uses Python 3.5) as the interpreter compared to the default CPython.
