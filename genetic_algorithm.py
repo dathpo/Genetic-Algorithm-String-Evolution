@@ -12,6 +12,7 @@ class GeneticAlgorithm:
     silent = None
     mean_time = None
     mean_generations = None
+    failed = False
 
     def __init__(self, target_string, population_size, crossover_rate, mutation_rate,
                  is_k_point_crossover, tournament_size_percent, strongest_winner_probability):
@@ -45,6 +46,7 @@ class GeneticAlgorithm:
         times = []
         generations = []
         for i in range(0, number_of_runs):
+            self.failed = False
             start_time = timeit.default_timer()
             population = self.generate_population(self.population_size)
             if self.tournament_size() % 2 != 0:
@@ -54,6 +56,10 @@ class GeneticAlgorithm:
             if self.show_each_chromosome: print("Hamming Distance      Chromosome          Generation\n")
             while self.target_string not in population:
                 generation_number += 1
+                if generation_number > 499:
+                    self.failed = True
+                    print("\nThe Genetic Algorithm failed, as the target string was not reached after 500 generations\n")
+                    break
                 winners = self.selection(population)
                 pre_mutation_generation = self.check_for_crossover(winners)
                 new_generation = self.mutate(pre_mutation_generation)
@@ -77,9 +83,11 @@ class GeneticAlgorithm:
             exec_time = timeit.default_timer() - start_time
             times.append(exec_time)
             generations.append(generation_number)
-            print("\nGenetic Algorithm complete, Execution Time: {0:.3f} seconds".format(exec_time),
+            if not self.failed:
+                print("\nGenetic Algorithm complete, Execution Time: {0:.3f} seconds".format(exec_time),
                   "          Generations:", generation_number, "\n")
-        self.set_stats(times, generations, number_of_runs)
+        if not self.failed:
+            self.set_stats(times, generations, number_of_runs)
 
     def generate_population(self, size):
         population = []

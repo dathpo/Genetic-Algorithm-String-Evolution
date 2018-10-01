@@ -10,6 +10,7 @@ class RandomSearch(GeneticAlgorithm):
     silent = None
     mean_time = None
     mean_rounds = None
+    failed = False
 
     def __init__(self, target_string, solutions_size):
         self.target_string = target_string
@@ -19,6 +20,7 @@ class RandomSearch(GeneticAlgorithm):
         times = []
         rounds = []
         for i in range(0, number_of_runs):
+            self.failed = False
             start_time = timeit.default_timer()
             solutions = self.generate_population(self.solutions_size)
             best_solution = self.evaluate(solutions)
@@ -31,6 +33,10 @@ class RandomSearch(GeneticAlgorithm):
             while self.target_string not in solutions:
                 round_number += 1
                 if best_solution[1] == 0:
+                    break
+                if round_number > 4999999:
+                    self.failed = True
+                    print("\nRandom Search failed, as the target string was not reached after 5000000 rounds\n")
                     break
                 new_solutions = self.generate_population(self.solutions_size)
                 new_best_solution = self.evaluate(new_solutions)
@@ -46,7 +52,8 @@ class RandomSearch(GeneticAlgorithm):
             exec_time = timeit.default_timer() - start_time
             times.append(exec_time)
             rounds.append(round_number)
-            print("\nRandom Search complete, Execution Time:     {0:.3f} seconds".format(exec_time),
+            if not self.failed:
+                print("\nRandom Search complete, Execution Time:     {0:.3f} seconds".format(exec_time),
                   "          Rounds:", round_number, "\n")
         self.set_stats(times, rounds, number_of_runs)
 
@@ -70,6 +77,9 @@ class RandomSearch(GeneticAlgorithm):
         self.mean_rounds = sum(rounds) / number_of_runs
 
     def get_stats(self):
-        print("\n\nRandom Search Run     Mean Execution Time:  {0:.3f} seconds".format(self.mean_time),
+        if self.failed is False:
+            print("\n\nRandom Search Run     Mean Execution Time:  {0:.3f} seconds".format(self.mean_time),
               "     Mean Rounds:", int(self.mean_rounds), "\n\n\n")
+        else:
+            print("\n\nRandom Search failed to reach the target string after a reasonable amount of time\n\n\n")
         return self.mean_time
