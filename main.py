@@ -50,11 +50,11 @@ def main():
     @param: solutions_size Amount of solutions (strings) generated randomly
             each round in which the solution is searched for
     """
-    rs = RandomSearch(target_string, 1)
+    """rs = RandomSearch(target_string, 1)
     rs.set_show_each_solution(False)
     rs.set_silent(True)
-    rs.run(3)
-    rs.get_stats()
+    rs.run(10)
+    rs.get_stats()"""
 
 
 if __name__ == "__main__":

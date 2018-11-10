@@ -5,6 +5,20 @@ venv/
 __pycache__/
 *.pyc
 pypy/
+.directory
+.idea/codeStyles/Project.xml
+*.iml
+.idea/vcs.xml
+.gradle
+/local.properties
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+*.pdf
 
 # User-specific stuff
 .idea/**/workspace.xml
