@@ -38,7 +38,7 @@ def main():
     @param: solutions_size Amount of solutions (strings) to search for a
             better solution in
     """
-    hc = HillClimbing(target_string, 10)
+    hc = HillClimbing(target_string, 1400)
     hc.set_show_each_solution(False)
     hc.set_silent(True)
     hc.run(10)
@@ -50,11 +50,11 @@ def main():
     @param: solutions_size Amount of solutions (strings) generated randomly
             each round in which the solution is searched for
     """
-    """rs = RandomSearch(target_string, 1)
+    rs = RandomSearch(target_string, 1400)
     rs.set_show_each_solution(False)
     rs.set_silent(True)
     rs.run(10)
-    rs.get_stats()"""
+    rs.get_stats()
 
 
 if __name__ == "__main__":
