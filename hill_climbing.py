@@ -1,7 +1,9 @@
 __author__ = 'David T. Pocock'
 
-import timeit, random
+import random
+import timeit
 from operator import itemgetter
+
 from genetic_algorithm import GeneticAlgorithm
 
 
@@ -36,7 +38,8 @@ class HillClimbing(GeneticAlgorithm):
                 new_best_solution = self.evaluate(new_solutions)
                 if self.show_each_solution:
                     print("       {}              {}            {}".
-                          format(str(new_best_solution[1]).rjust(2), new_best_solution[0].rjust(2), str(round_number).rjust(2)))
+                          format(str(new_best_solution[1]).rjust(2), new_best_solution[0].rjust(2),
+                                 str(round_number).rjust(2)))
                 if new_best_solution[1] < best_solution[1]:
                     solutions = new_solutions
                     best_solution = new_best_solution
@@ -80,7 +83,7 @@ class HillClimbing(GeneticAlgorithm):
         for i in range(0, self.solutions_size):
             solution = []
             str_length = len(self.target_string)
-            for j, char in enumerate(range(0,str_length)):
+            for j, char in enumerate(range(0, str_length)):
                 if best_solution[j] is None:
                     char = random.choice(self.available_chars())
                     solution.append(char)

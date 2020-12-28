@@ -1,7 +1,8 @@
 __author__ = 'David T. Pocock'
 
-
-import random, string, timeit
+import random
+import string
+import timeit
 from operator import itemgetter
 
 
@@ -24,7 +25,8 @@ class GeneticAlgorithm:
         self.tournament_size_percent = tournament_size_percent
         self.strongest_winner_probability = strongest_winner_probability
 
-    def available_chars(self):
+    @staticmethod
+    def available_chars():
         characters = string.ascii_letters + string.digits + ' ' + '\x7f' + string.punctuation
         return characters
 
@@ -38,7 +40,8 @@ class GeneticAlgorithm:
     def strongest_winner_prob(self):
         return self.strongest_winner_probability
 
-    def crossover_point(self):
+    @staticmethod
+    def crossover_point():
         value = random.random()
         return value
 
@@ -53,12 +56,14 @@ class GeneticAlgorithm:
                 raise ValueError('Tournament Size must be an even number!')
             generation_number = 0
             fittest_chromosome = 0
-            if self.show_each_chromosome: print("Hamming Distance      Chromosome          Generation\n")
+            if self.show_each_chromosome:
+                print("Hamming Distance      Chromosome          Generation\n")
             while self.target_string not in population:
                 generation_number += 1
                 if generation_number > 499:
                     self.failed = True
-                    print("\nThe Genetic Algorithm failed, as the target string was not reached after 500 generations\n")
+                    print(
+                        "\nThe Genetic Algorithm failed, as the target string was not reached after 500 generations\n")
                     break
                 winners = self.selection(population)
                 pre_mutation_generation = self.check_for_crossover(winners)
@@ -72,7 +77,8 @@ class GeneticAlgorithm:
                         fittest_chromosome = chromosome, fitness_value
                     if self.show_each_chromosome:
                         print("       {}            {}            {}"
-                          .format(str(fitness_value).rjust(2), chromosome.rjust(2), str(generation_number).rjust(2)))
+                              .format(str(fitness_value).rjust(2), chromosome.rjust(2),
+                                      str(generation_number).rjust(2)))
                     if fitness_value <= fittest_chromosome[1]:
                         fittest_chromosome = chromosome, fitness_value
                         if fitness_value == 0:
@@ -85,20 +91,20 @@ class GeneticAlgorithm:
             generations.append(generation_number)
             if not self.failed:
                 print("\nGenetic Algorithm complete, Execution Time: {0:.3f} seconds".format(exec_time),
-                  "          Generations:", generation_number, "\n")
+                      "          Generations:", generation_number, "\n")
         if not self.failed:
             self.set_stats(times, generations, number_of_runs)
 
     def generate_population(self, size):
         population = []
-        for i in range(0,size):
+        for i in range(0, size):
             chromosome = []
             str_length = len(self.target_string)
-            for char in range(0,str_length):
+            for char in range(0, str_length):
                 char = random.choice(self.available_chars())
                 chromosome.append(char)
-            chromo_string = ''.join(chromosome)
-            population.append(chromo_string)
+            chromosome_string = ''.join(chromosome)
+            population.append(chromosome_string)
         return population
 
     def fitness(self, source, target):
@@ -115,7 +121,8 @@ class GeneticAlgorithm:
     def selection(self, population):
         return self.tournament_selection(population)
 
-    def decision(self, probability):
+    @staticmethod
+    def decision(probability):
         rand_int = random.random()
         return rand_int < probability
 
@@ -147,7 +154,7 @@ class GeneticAlgorithm:
                 winners.append(winner)
                 participants.append(first_temp_participant)
                 participants.append(second_temp_participant)
-        winners_strings = [str[0] for str in winners]
+        winners_strings = [tuple_string[0] for tuple_string in winners]
         paired_winners = list(zip(winners_strings[0::2], winners_strings[1::2]))
         return paired_winners
 
@@ -164,10 +171,13 @@ class GeneticAlgorithm:
         return new_generation
 
     def crossover(self, first_parent, second_parent, is_k_point_crossover):
-        if is_k_point_crossover: crossover_method = "k-Point Crossover"
-        else: crossover_method = "One-Point Crossover"
+        if is_k_point_crossover:
+            crossover_method = "k-Point Crossover"
+        else:
+            crossover_method = "One-Point Crossover"
         if self.show_crossover_internals:
-            print("\nParent #1:", first_parent, "      Parent #2:", second_parent, "      Crossover Method:", crossover_method)
+            print("\nParent #1:", first_parent, "      Parent #2:", second_parent, "      Crossover Method:",
+                  crossover_method)
         first_child_char_array = []
         second_child_char_array = []
         i = 0
@@ -199,19 +209,23 @@ class GeneticAlgorithm:
         """I left the print statements in to allow seeing how the bit-flipping works in the mutation process"""
         new_generation = []
         for chromosome in generation:
-            if self.show_mutation_internals: print("\nChromosome being worked on:  ", chromosome, "\n")
+            if self.show_mutation_internals:
+                print("\nChromosome being worked on:  ", chromosome, "\n")
             chromosome_bit_array = []
             for char in chromosome:
                 binary_char = bin(ord(char))
-                if self.show_mutation_internals: print("Char:    ", char, "   ASCII #:", ord(char), "   Binary Char:", binary_char)
+                if self.show_mutation_internals:
+                    print("Char:    ", char, "   ASCII #:", ord(char), "   Binary Char:", binary_char)
                 new_binary_char_array = ['0', 'b', '1']
                 for bit in binary_char[3:]:
                     if self.decision(self.mutation_rate):
                         flipped_bit = int(bit) ^ 1
-                        if self.show_mutation_internals: print("Bit:     ", str(bit), "   Flipped Bit:", str(flipped_bit))
+                        if self.show_mutation_internals:
+                            print("Bit:     ", str(bit), "   Flipped Bit:", str(flipped_bit))
                         new_binary_char_array.append(str(flipped_bit))
                     else:
-                        if self.show_mutation_internals: print("Bit:     ", str(bit))
+                        if self.show_mutation_internals:
+                            print("Bit:     ", str(bit))
                         new_binary_char_array.append(str(bit))
                 new_binary_char = ''.join(new_binary_char_array)
                 if self.show_mutation_internals:
@@ -225,13 +239,14 @@ class GeneticAlgorithm:
             new_generation.append(new_chromosome)
         return new_generation
 
-    def bit_array_to_string(self, array):
+    @staticmethod
+    def bit_array_to_string(array):
         char_array = []
         for bit in array:
             char = chr(int(bit, 2))
             char_array.append(char)
-        str = ''.join(char_array)
-        return str
+        new_string = ''.join(char_array)
+        return new_string
 
     def set_show_each_chromosome(self, boolean):
         self.show_each_chromosome = boolean

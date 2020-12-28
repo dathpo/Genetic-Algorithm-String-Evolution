@@ -2,6 +2,7 @@ __author__ = 'David T. Pocock'
 
 import timeit
 from operator import itemgetter
+
 from genetic_algorithm import GeneticAlgorithm
 
 
@@ -42,7 +43,8 @@ class RandomSearch(GeneticAlgorithm):
                 new_best_solution = self.evaluate(new_solutions)
                 if self.show_each_solution:
                     print("       {}                 {}            {}".
-                          format(str(new_best_solution[1]).rjust(2), new_best_solution[0].rjust(2), str(round_number).rjust(2)))
+                          format(str(new_best_solution[1]).rjust(2), new_best_solution[0].rjust(2),
+                                 str(round_number).rjust(2)))
                 if new_best_solution[1] < best_solution[1]:
                     solutions = new_solutions
                     best_solution = new_best_solution
@@ -54,7 +56,7 @@ class RandomSearch(GeneticAlgorithm):
             rounds.append(round_number)
             if not self.failed:
                 print("\nRandom Search complete, Execution Time:     {0:.3f} seconds".format(exec_time),
-                  "          Rounds:", round_number, "\n")
+                      "          Rounds:", round_number, "\n")
         self.set_stats(times, rounds, number_of_runs)
 
     def evaluate(self, solutions):
@@ -79,7 +81,7 @@ class RandomSearch(GeneticAlgorithm):
     def get_stats(self):
         if self.failed is False:
             print("\n\nRandom Search Run     Mean Execution Time:  {0:.3f} seconds".format(self.mean_time),
-              "     Mean Rounds:", int(self.mean_rounds), "\n\n\n")
+                  "     Mean Rounds:", int(self.mean_rounds), "\n\n\n")
         else:
             print("\n\nRandom Search failed to reach the target string after a reasonable amount of time\n\n\n")
         return self.mean_time
